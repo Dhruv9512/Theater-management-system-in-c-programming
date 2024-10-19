@@ -89,38 +89,36 @@ char *getCurrentDate()
 void Invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id)
 {
     clearScreen();
-    printf("\t\t\t    PVR Cinemas Invoice\n");
-    printf("\t\t\t---------------------------\n\n\n");
+    printf("\t\t\t\t    PVR Cinemas Invoice\n");
+    printf("\t\t\t\t---------------------------\n\n");
     printf("Date: %s\n", date);
     printf("Time: %s\n", time);
-    printf("--------------------------------------------------------------\n");
-
-    printf("Movie Title: \t\t\t\t%s\n", m[Ticket_id - 1].title);
-    printf("Number of Tickets: \t\t\t%d\n", quantity);
-    printf("Ticket ID: \t\t\t\t%d\n", Ticket_id);
-    printf("Price per Ticket: \t\t\t%s\n", m[Ticket_id - 1].price);
+    printf("---------------------------------------------------------------------------------------------------\n");
+    printf("Id\t\t\tTitle\t\t\tNumber of Tickets\t\tPrice per Ticket\n");
+    printf("---------------------------------------------------------------------------------------------------\n\n");
+    printf("%d %30s\t\t%d\t\t\t\t%4s\n",Ticket_id,m[Ticket_id - 1].title,quantity,m[Ticket_id - 1].price);
 
     double price_per_ticket = atof(m[Ticket_id - 1].price);
     double total = price_per_ticket * quantity;
 
-    printf("--------------------------------------------------------------\n");
-    printf("Total Price: \t\t\t\t%.2f\n", total);
+    printf("---------------------------------------------------------------------------------------------------\n");
+    printf("Total Price:\t\t\t\t\t\t\t\t\t%.2f\n", total);
 
     double discount = total * 0.1;
-    printf("Discount @10%% \t\t\t\t%.2f\n", discount);
-    printf("\t\t\t\t\t---------\n");
+    printf("Discount @10%% \t\t\t\t\t\t\t\t\t%.2f\n", discount);
+    printf("\t\t\t\t\t\t\t\t\t\t---------\n");
     double net_total = total - discount;
-    printf("Net Total\t\t\t\t%.2f\n", net_total);
+    printf("Net Total\t\t\t\t\t\t\t\t\t%.2f\n", net_total);
 
     double cgst = net_total * 0.09;
     double sgst = net_total * 0.09;
-    printf("CGST @9%%\t\t\t\t%.2f\n", cgst);
-    printf("SGST @9%%\t\t\t\t%.2f\n", sgst);
+    printf("CGST @9%%\t\t\t\t\t\t\t\t\t%.2f\n", cgst);
+    printf("SGST @9%%\t\t\t\t\t\t\t\t\t%.2f\n", sgst);
 
     double grand_total = net_total + cgst + sgst;
-    printf("--------------------------------------------------------------\n");
-    printf("Grand Total\t\t\t\t%.2f\n", grand_total);
-    printf("--------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------------------\n");
+    printf("Grand Total\t\t\t\t\t\t\t\t\t%.2f\n", grand_total);
+    printf("---------------------------------------------------------------------------------------------------\n");
 }
 // Payment Function
 void payment(int quantity, int Ticket_id)
@@ -148,18 +146,18 @@ void payment(int quantity, int Ticket_id)
     if (save == 'y' || save == 'Y')
     {
         printf("Your invoice has been saved successfully. (You will be redirected automatically)\n");
-        printf("--------------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
         printf("Thank you for choosing PVR Cinemas!\n");
-        printf("--------------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
         sleep(5);
         main_PVR();
     }
     else
     {
         printf("Your invoice was not saved. (You will be redirected automatically)\n");
-        printf("--------------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
         printf("Thank you for choosing PVR Cinemas!\n");
-        printf("--------------------------------------------------------------\n");
+        printf("---------------------------------------------------------------------------------------------------\n");
         sleep(5);
         main_PVR();
     }
