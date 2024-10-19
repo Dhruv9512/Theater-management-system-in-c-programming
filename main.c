@@ -76,7 +76,7 @@ void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id
         exit(0);
     }
 
-    fprintf(file,"%d,%s,%d,%s,%s,%s",Ticket_id,m[Ticket_id-1].title,quantity,m[Ticket_id-1].price,date,time);
+    fprintf(file,"%d,%s,%d,%s,%s,%s\n",Ticket_id,m[Ticket_id-1].title,quantity,m[Ticket_id-1].price,date,time);
  
     fclose(file);
 }
