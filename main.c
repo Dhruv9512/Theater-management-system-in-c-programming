@@ -29,7 +29,8 @@ typedef struct
 } seat;
 
 // ------------------------Function Declarations----------------------
-void Invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id);
+void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id);
+void Invoice(char title[40], char price[5], int quantity, char *date, char *time, int Ticket_id);
 void store_seat_data(int Ticket_id, seat *s);
 void print_seat_table(seat *s);
 void Book_Ticket();
@@ -61,6 +62,24 @@ int main()
 
 // ---------------------------------- Support Function-----------------------------------
 
+// Function to store the invoice in user file
+void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id) {
+    char filename[30]; 
+    sprintf(filename, "%s.txt", new_user.mobile);
+    
+ 
+    FILE *file = fopen(filename, "a");
+    if (file == NULL) {
+        clearScreen();
+        printf("Error opening file!\n");
+        sleep(5);
+        exit(0);
+    }
+
+    fprintf(file,"%d,%s,%d,%s,%s,%s",Ticket_id,m[Ticket_id-1].title,quantity,m[Ticket_id-1].price,date,time);
+ 
+    fclose(file);
+}
 // current time function
 char *getCurrentTime()
 {
@@ -86,7 +105,7 @@ char *getCurrentDate()
     return buffer;
 }
 // Invoice Function
-void Invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id)
+void Invoice(char title[40], char price[5], int quantity, char *date, char *time, int Ticket_id)
 {
     clearScreen();
     printf("\t\t\t\t    PVR Cinemas Invoice\n");
@@ -94,11 +113,11 @@ void Invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id)
     printf("Date: %s\n", date);
     printf("Time: %s\n", time);
     printf("---------------------------------------------------------------------------------------------------\n");
-    printf("Id\t\t\tTitle\t\t\tNumber of Tickets\t\tPrice per Ticket\n");
+    printf("Movie Id\t\tTitle\t\t\tNumber of Tickets\t\tPrice per Ticket\n");
     printf("---------------------------------------------------------------------------------------------------\n\n");
-    printf("%d %30s\t\t%d\t\t\t\t%4s\n",Ticket_id,m[Ticket_id - 1].title,quantity,m[Ticket_id - 1].price);
+    printf("%d %30s\t\t%d\t\t\t\t%4s\n", Ticket_id,title, quantity, price);
 
-    double price_per_ticket = atof(m[Ticket_id - 1].price);
+    double price_per_ticket = atof(price);
     double total = price_per_ticket * quantity;
 
     printf("---------------------------------------------------------------------------------------------------\n");
@@ -139,7 +158,7 @@ void payment(int quantity, int Ticket_id)
     clearBuffer();
     printf("Please enter your UPI PIN: ");
     scanf("%s", pass);
-    Invoice(&m, quantity, getCurrentDate(), getCurrentTime(), Ticket_id);
+    Invoice(m[Ticket_id-1].title, m[Ticket_id-1].price ,quantity, getCurrentDate(), getCurrentTime(), Ticket_id);
     char save;
     printf("Do you want to save this Invoice (y/n): ");
     scanf(" %c", &save);
@@ -149,6 +168,7 @@ void payment(int quantity, int Ticket_id)
         printf("---------------------------------------------------------------------------------------------------\n");
         printf("Thank you for choosing PVR Cinemas!\n");
         printf("---------------------------------------------------------------------------------------------------\n");
+        store_invoice(&m, quantity, getCurrentDate(), getCurrentTime(), Ticket_id);
         sleep(5);
         main_PVR();
     }
@@ -212,6 +232,7 @@ void store_seat_data(int Ticket_id, seat *s)
 
     fclose(file);
 }
+
 // Function to show seat layout
 void print_seat_table(seat *s)
 {
@@ -249,6 +270,7 @@ void print_seat_table(seat *s)
     printf(" (*)  Booked Seat\n");
     printf(" (-) Available Seat\n");
 }
+
 // Function to count the number of lines in a file
 int countLinesInFile(const char *filename)
 {
@@ -272,6 +294,7 @@ int countLinesInFile(const char *filename)
 
     return lineCount;
 }
+
 // Store Movies Data
 void store_movies_data(Movie *movie)
 {
@@ -337,6 +360,7 @@ void store_movies_data(Movie *movie)
     }
     fclose(file);
 }
+
 // Function to update the seat Data
 void update_seat_data(int Ticket_id, seat *s)
 {
@@ -421,6 +445,7 @@ void Show_movies_data(int Movie_File_n, Movie *movie)
 
     printf("\t------------------------------------------------------------------------------------------------------------------------------------\n");
 }
+
 // Reserve Seat
 void Reserve_seat(int Ticket_id, int Movie_File_n)
 {
@@ -505,11 +530,13 @@ void clearBuffer()
     while (getchar() != '\n')
         ;
 }
+
 // Clear the screen function
 void clearScreen()
 {
     system("cls||clear");
 }
+
 // Check if user exists
 int check_user(char mobile[11])
 {
@@ -542,6 +569,7 @@ int check_user(char mobile[11])
     fclose(file);
     return 0;
 }
+
 // For Login Validation
 int check_login(char mobile[11], char password[100])
 {
@@ -591,6 +619,7 @@ int check_login(char mobile[11], char password[100])
 }
 
 // --------------------------------------- Main Login Page Functions------------------------------
+
 // For Login
 int Login()
 {
@@ -624,6 +653,7 @@ int Login()
         main_login_page();
     }
 }
+
 // For Signup
 void Signup()
 {
@@ -688,6 +718,7 @@ void Signup()
     sleep(3);
     return main_login_page();
 }
+
 // Main Login Page Function
 void main_login_page()
 {
