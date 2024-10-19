@@ -6,30 +6,41 @@
 
 // ------------------------- Structure To store movies Data----------------------
 
+// structure for user details
+typedef struct
+{
+    char mobile[11];
+    char password[100];
+} user;
+user new_user;
 // Structure to store movie details
 typedef struct
 {
     char title[40];
-    char showtime[5];
+    char showtime[6];
     char genre[20];
     char rating[5];
     char price[5];
-    int seats[5][10];
 } Movie;
 // structure To store seats details
 typedef struct
 {
     int seats[5][10];
-} seat; 
+} seat;
 
 // ------------------------Function Declarations----------------------
-void store_seat_data(int Ticket_id,seat*s);
-void print_seat_table(seat*s);
+void Invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id);
+void store_seat_data(int Ticket_id, seat *s);
+void print_seat_table(seat *s);
 void Book_Ticket();
-void store_movies_data();
+void store_movies_data(Movie *movie);
 void Show_movies_data(int Movie_File_n, Movie *movie);
+void update_seat_data(int Ticket_id, seat *s);
 int countLinesInFile(const char *filename);
 void Reserve_seat(int Ticket_id, int Movie_File_n);
+void payment(int quantity, int Ticket_id);
+char *getCurrentTime();
+char *getCurrentDate();
 void clearBuffer();
 void clearScreen();
 int check_user(char mobile[11]);
@@ -50,81 +61,190 @@ int main()
 
 // ---------------------------------- Support Function-----------------------------------
 
+// current time function
+char *getCurrentTime()
+{
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+    char *buffer = (char *)malloc(9 * sizeof(char));
+    if (buffer != NULL)
+    {
+        strftime(buffer, 9, "%I:%M %p", tm_info);
+    }
+    return buffer;
+}
+// Current date function
+char *getCurrentDate()
+{
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+    char *buffer = (char *)malloc(11 * sizeof(char));
+    if (buffer != NULL)
+    {
+        strftime(buffer, 11, "%Y-%m-%d", tm_info);
+    }
+    return buffer;
+}
+// Invoice Function
+void Invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id)
+{
+    clearScreen();
+    printf("\t\t\t    PVR Cinemas Invoice\n");
+    printf("\t\t\t---------------------------\n\n\n");
+    printf("Date: %s\n", date);
+    printf("Time: %s\n", time);
+    printf("--------------------------------------------------------------\n");
+
+    printf("Movie Title: \t\t\t\t%s\n", m[Ticket_id - 1].title);
+    printf("Number of Tickets: \t\t\t%d\n", quantity);
+    printf("Ticket ID: \t\t\t\t%d\n", Ticket_id);
+    printf("Price per Ticket: \t\t\t%s\n", m[Ticket_id - 1].price);
+
+    double price_per_ticket = atof(m[Ticket_id - 1].price);
+    double total = price_per_ticket * quantity;
+
+    printf("--------------------------------------------------------------\n");
+    printf("Total Price: \t\t\t\t%.2f\n", total);
+
+    double discount = total * 0.1;
+    printf("Discount @10%% \t\t\t\t%.2f\n", discount);
+    printf("\t\t\t\t\t---------\n");
+    double net_total = total - discount;
+    printf("Net Total\t\t\t\t%.2f\n", net_total);
+
+    double cgst = net_total * 0.09;
+    double sgst = net_total * 0.09;
+    printf("CGST @9%%\t\t\t\t%.2f\n", cgst);
+    printf("SGST @9%%\t\t\t\t%.2f\n", sgst);
+
+    double grand_total = net_total + cgst + sgst;
+    printf("--------------------------------------------------------------\n");
+    printf("Grand Total\t\t\t\t%.2f\n", grand_total);
+    printf("--------------------------------------------------------------\n");
+}
+// Payment Function
+void payment(int quantity, int Ticket_id)
+{
+    clearScreen();
+    Movie m[countLinesInFile("movies.txt")];
+    store_movies_data(&m);
+
+    // Print the total bill in an attractive format
+    printf("-------------------------------------\n");
+    printf("            PAYMENT SCREEN           \n");
+    printf("-------------------------------------\n\n");
+    printf("Your Total Bill: %d\n", quantity * atoi(m[Ticket_id - 1].price));
+    char upi[50];
+    char pass[10];
+    printf("Please enter your UPI ID: ");
+    scanf("%s", upi);
+    clearBuffer();
+    printf("Please enter your UPI PIN: ");
+    scanf("%s", pass);
+    Invoice(&m, quantity, getCurrentDate(), getCurrentTime(), Ticket_id);
+    char save;
+    printf("Do you want to save this Invoice (y/n): ");
+    scanf(" %c", &save);
+    if (save == 'y' || save == 'Y')
+    {
+        printf("Your invoice has been saved successfully. (You will be redirected automatically)\n");
+        printf("--------------------------------------------------------------\n");
+        printf("Thank you for choosing PVR Cinemas!\n");
+        printf("--------------------------------------------------------------\n");
+        sleep(5);
+        main_PVR();
+    }
+    else
+    {
+        printf("Your invoice was not saved. (You will be redirected automatically)\n");
+        printf("--------------------------------------------------------------\n");
+        printf("Thank you for choosing PVR Cinemas!\n");
+        printf("--------------------------------------------------------------\n");
+        sleep(5);
+        main_PVR();
+    }
+}
 // Function to store seat data
-void store_seat_data(int Ticket_id,seat*s) {
+void store_seat_data(int Ticket_id, seat *s)
+{
     FILE *file = fopen("seat.txt", "r");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         clearScreen();
         printf("Error opening file!\n");
-        sleep(3);
-        exit(0);
+        return;
     }
 
     char line[300];
-    int count = 0;
-    char ID[4];  // Buffer to store the movie ID
+    int found = 0;
 
-    while (fgets(line, sizeof(line), file)) {   
-      
-        if (count == 6) {
-            count = 0;
-        }
-        
-       
-        if (count == 0) {
-            int i;
-           
-            for (i = 0; line[i] != '\0' && line[i] != '\n'; i++) {
-                ID[i] = line[i];
-            }
-            ID[i] = '\0';  
+    while (fgets(line, sizeof(line), file))
+    {
+        int id = atoi(line);
+        if (id == Ticket_id)
+        {
+            found = 1;
 
-            if (atoi(ID) == Ticket_id) {
-                
-                for (int j = 0; j < 5; j++) {
-                    if (fgets(line, sizeof(line), file)) {
-                        int col = 0;
-                        for (int i = 0; line[i] != '\0'; i++) {
-                            if (line[i] != ',') {
-                                s->seats[j][col] =  line[i] - '0';  
-                                col++;
-                            }
+            for (int j = 0; j < 5; j++)
+            {
+                if (fgets(line, sizeof(line), file))
+                {
+                    int col = 0;
+                    for (int k = 0; line[k] != '\0'; k++)
+                    {
+                        if (line[k] != ',' && col < 10)
+                        {
+                            s->seats[j][col] = line[k] - '0';
+                            col++;
                         }
-                        
                     }
                 }
             }
+            break;
         }
-
-        count++;  
     }
-    
+
+    if (!found)
+    {
+        clearScreen();
+        printf("Ticket ID %d not found in the file.\n", Ticket_id);
+        sleep(2);
+        Book_Ticket();
+    }
+
     fclose(file);
 }
-
 // Function to show seat layout
-void print_seat_table(seat*s) {
+void print_seat_table(seat *s)
+{
     clearScreen();
     printf("\nSeat Layout:\n\n");
     printf("       ");
-    for (int j = 0; j < 10; j++) {
-        printf(" %d ", j + 1);  
+    for (int j = 0; j < 10; j++)
+    {
+        printf(" %d ", j + 1);
     }
     printf("\n       ");
-    for (int j = 0; j < 10; j++) {
-        printf("---");  
+    for (int j = 0; j < 10; j++)
+    {
+        printf("---");
     }
     printf("\n");
-    for (int i = 0; i < 5; i++) {
-        printf("Row %d  ", i + 1);  
-        for (int j = 0; j < 10; j++) {
-            if (s->seats[i][j] == 1) {
-                printf(" * ");  
-            } else {
-                printf(" - "); 
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Row %d  ", i + 1);
+        for (int j = 0; j < 10; j++)
+        {
+            if (s->seats[i][j] == 1)
+            {
+                printf(" * ");
+            }
+            else
+            {
+                printf(" - ");
             }
         }
-        printf("\n"); 
+        printf("\n");
     }
 
     printf("\nLegend:\n");
@@ -170,11 +290,11 @@ void store_movies_data(Movie *movie)
     int count = 0;
 
     char line[300];
-    while (fgets(line, sizeof(line), file))
+    while (fgets(line, sizeof(line), file) && count < countLinesInFile("movies.txt"))
     {
-        int time = 0, name = 0, movie_time = 0, genre = 0, rate = 0, price = 0;
+        int time = 0, name = 0, movie_time = 0, g = 0, rate = 0, price = 0;
 
-        for (int i = 0; line[i] != '\0'; i++)
+        for (int i = 0; line[i] != '\0' && line[i] != '\n'; i++)
         {
             if (line[i] == ',')
             {
@@ -196,7 +316,7 @@ void store_movies_data(Movie *movie)
             // Storing genre
             else if (time == 2)
             {
-                movie[count].genre[genre++] = line[i];
+                movie[count].genre[g++] = line[i];
             }
             // Storing rate
             else if (time == 3)
@@ -208,20 +328,79 @@ void store_movies_data(Movie *movie)
             {
                 movie[count].price[price++] = line[i];
             }
+        }
+        // put "\0" at end
+        movie[count].genre[g] = '\0';
+        movie[count].price[price] = '\0';
+        movie[count].rating[rate] = '\0';
+        movie[count].showtime[movie_time] = '\0';
+        movie[count].title[name] = '\0';
+        count++;
+    }
+    fclose(file);
+}
+// Function to update the seat Data
+void update_seat_data(int Ticket_id, seat *s)
+{
+    FILE *file = fopen("seat.txt", "r+");
+    if (file == NULL)
+    {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
 
-            // put "\0" at end
-            movie[count].genre[genre] = '\0';
-            movie[count].price[price] = '\0';
-            movie[count].rating[rate] = '\0';
-            movie[count].showtime[movie_time] = '\0';
-            movie[count].title[name] = '\0';
+    char line[300];
+    int count = 0, position = -1;
+    char ID[10];
+
+    while (fgets(line, sizeof(line), file))
+    {
+        if (count == 6)
+        {
+            count = 0;
         }
 
+        if (count == 0)
+        {
+
+            sscanf(line, "%s", ID);
+            if (atoi(ID) == Ticket_id)
+            {
+                position = ftell(file);
+                break;
+            }
+        }
         count++;
+    }
+
+    if (position == -1)
+    {
+        printf("Ticket ID not found.\n");
+        fclose(file);
+        return;
+    }
+
+    if (fseek(file, position, SEEK_SET) != 0)
+    {
+        perror("Error seeking in file");
+        fclose(file);
+        return;
+    }
+
+    for (int j = 0; j < 5; j++)
+    {
+        for (int k = 0; k < 10; k++)
+        {
+            fprintf(file, "%d", s->seats[j][k]);
+            if (k < 9)
+                fprintf(file, ",");
+        }
+        fprintf(file, "\n");
     }
 
     fclose(file);
 }
+
 // Display movies Data
 void Show_movies_data(int Movie_File_n, Movie *movie)
 {
@@ -247,34 +426,92 @@ void Show_movies_data(int Movie_File_n, Movie *movie)
 // Reserve Seat
 void Reserve_seat(int Ticket_id, int Movie_File_n)
 {
-
-    if (Ticket_id > Movie_File_n || Ticket_id == 0)
+    if (Ticket_id > Movie_File_n || Ticket_id <= 0)
     {
+        clearScreen();
         printf("Enter a valid movie 'ID'.\n");
-        sleep(5);
+        sleep(2);
+        return;
+    }
+
+    clearScreen();
+    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n\n");
+
+    seat s;
+    store_seat_data(Ticket_id, &s);
+    print_seat_table(&s);
+
+    clearBuffer();
+    int n;
+    printf("\nEnter Number of tickets you want to book: ");
+    scanf("%d", &n);
+
+    // Validate quantity
+    if (n <= 0 || n > 5)
+    {
+        clearScreen();
+        printf("Please enter a valid number of tickets (1-5).\n");
+        sleep(2);
         Book_Ticket();
     }
-    clearScreen();
+    clearBuffer();
+    for (int i = 0; i < n; i++)
+    {
 
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n\n");
-    seat s;
-    store_seat_data(Ticket_id,&s);
-    print_seat_table(&s);
-     
+        clearScreen();
+        store_seat_data(Ticket_id, &s);
+        print_seat_table(&s);
+        printf("\n\nReserve a seat for %d person\n-------------------------------", i + 1);
+
+        int row_number, seat_number;
+        printf("\nEnter the row number you want to reserve for (1-5): ");
+        scanf("%d", &row_number);
+
+        printf("Enter the seat number in row %d (1-10): ", row_number);
+        scanf("%d", &seat_number);
+
+        // Input validation for row and seat number
+        if (row_number < 1 || row_number > 5 || seat_number < 1 || seat_number > 10)
+        {
+            clearScreen();
+            printf("Invalid row or seat number. Please try again.\n");
+            sleep(2);
+            i--;
+            continue;
+        }
+
+        // Check seat availability
+        if (s.seats[row_number - 1][seat_number - 1] == 1)
+        {
+            clearScreen();
+            printf("Sorry, seat %d in row %d is already booked. Please choose a different seat.\n", seat_number, row_number);
+            sleep(2);
+            i--;
+            continue;
+        }
+        else
+        {
+            s.seats[row_number - 1][seat_number - 1] = 1;
+            clearScreen();
+            printf("Seat %d in row %d has been successfully reserved!\n", seat_number, row_number);
+            update_seat_data(Ticket_id, &s);
+            sleep(2);
+        }
+    }
+    payment(n, Ticket_id);
 }
+
 // Clear buffer function
 void clearBuffer()
 {
     while (getchar() != '\n')
         ;
 }
-
 // Clear the screen function
 void clearScreen()
 {
     system("cls||clear");
 }
-
 // Check if user exists
 int check_user(char mobile[11])
 {
@@ -377,13 +614,15 @@ int Login()
         clearScreen();
         printf("You logged in successfully!\n");
         sleep(2);
+        strcpy(new_user.mobile, mobile_number);
+        strcpy(new_user.password, password);
         main_PVR();
     }
     else
     {
         clearScreen();
         printf("User is not valid, please try again.");
-        sleep(5);
+        sleep(3);
         main_login_page();
     }
 }
