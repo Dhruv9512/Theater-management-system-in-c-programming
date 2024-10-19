@@ -89,8 +89,8 @@ void User_history()
         char temp_quantity[5] = {0};
         char movie_title[40] = {0};
         char movie_price[5] = {0};
-        char movie_date[11] = {0};
-        char movie_time[9] = {0};
+        char movie_date[15] = {0};
+        char movie_time[15] = {0};
         int time = 0, ID = 0, title = 0, price = 0, date = 0, temp_time = 0, quantity = 0;
 
         for (int i = 0; line[i] != '\0'; i++)
