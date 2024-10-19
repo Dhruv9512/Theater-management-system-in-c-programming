@@ -1,7 +1,7 @@
-The Dark Knight,10:00,Action,9.0,300
-Inception,2:00,Sci-Fi,8.8,250
-Avengers:Endgame,6:00,Action,8.4,350
-Spider-Man:No Way Home,9:00,Action,8.3,320
-Frozen II,11:30,Animation,6.8,200
-Parasite,4:00,Drama,8.6,180
-Interstellar,3:30,Adventure,8.6,320
+The Dark Knight,20:00,Action,9.0,300
+Inception,23:00,Sci-Fi,8.8,250
+Avengers:Endgame,15:00,Action,8.4,350
+Spider-Man:No Way Home,13:00,Action,8.3,320
+Frozen II,14:30,Animation,6.8,200
+Parasite,17:00,Drama,8.6,180
+Interstellar,19:30,Adventure,8.6,320

@@ -101,6 +101,7 @@ void reset_seat(Ticket_id)
     {
         printf("Ticket ID not found.\n");
         fclose(file);
+        exit(0);
         return;
     }
 
@@ -108,7 +109,7 @@ void reset_seat(Ticket_id)
     {
         perror("Error seeking in file");
         fclose(file);
-        return;
+        exit(0);
     }
 
     for (int j = 0; j < 5; j++)
@@ -124,6 +125,7 @@ void reset_seat(Ticket_id)
 
     fclose(file);
 }
+
 // Function to display the history of user
 void User_history()
 {
@@ -140,7 +142,7 @@ void User_history()
         clearScreen();
         printf("Error opening file or no history found!\n");
         sleep(3);
-        return;
+        exit(0);
     }
 
     char line[350];
@@ -363,7 +365,7 @@ void store_seat_data(int Ticket_id, seat *s)
     {
         clearScreen();
         printf("Error opening file!\n");
-        return;
+        exit(0);
     }
 
     char line[300];
@@ -398,7 +400,7 @@ void store_seat_data(int Ticket_id, seat *s)
     if (!found)
     {
         clearScreen();
-        printf("Ticket ID %d not found in the file.\n", Ticket_id);
+        printf("Ticket ID %d not found in the file. (You will be redirected automatically)\n", Ticket_id);
         sleep(2);
         Book_Ticket();
     }
@@ -454,8 +456,10 @@ int countLinesInFile(const char *filename)
     file = fopen(filename, "r");
     if (file == NULL)
     {
+        clearScreen();
         printf("Error opening file: %s\n", filename);
-        return -1;
+        sleep(3);
+        exit(0);
     }
 
     while (fgets(line, sizeof(line), file))
@@ -570,16 +574,20 @@ void update_seat_data(int Ticket_id, seat *s)
 
     if (position == -1)
     {
+        clearScreen(0);
         printf("Ticket ID not found.\n");
         fclose(file);
-        return;
+        sleep(3);
+        exit(0);
     }
 
     if (fseek(file, position, SEEK_SET) != 0)
     {
+        clearScreen();
         perror("Error seeking in file");
         fclose(file);
-        return;
+        sleep(3);
+        exit(0);
     }
 
     for (int j = 0; j < 5; j++)
@@ -625,18 +633,9 @@ void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
     if (Ticket_id > Movie_File_n || Ticket_id <= 0)
     {
         clearScreen();
-        printf("Enter a valid movie 'ID'.\n");
+        printf("Enter a valid movie 'ID'. (You will be redirected automatically)\n");
         sleep(2);
-        return;
-    }
-
-    char *current_time = getCurrentTime();
-    printf("Current time: %s\n", current_time);
-    printf("Movie time: %s\n", movie[Ticket_id - 1].showtime);
-
-    if (strcmp(current_time, movie[Ticket_id - 1].showtime) >= 0)
-    {
-        reset_seat(Ticket_id);
+        exit(0);
     }
     clearScreen();
     printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n\n");
@@ -654,7 +653,7 @@ void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
     if (n <= 0 || n > 5)
     {
         clearScreen();
-        printf("Please enter a valid number of tickets (1-5).\n");
+        printf("Please enter a valid number of tickets (1-5). (You will be redirected automatically)\n");
         sleep(2);
         Book_Ticket();
     }
@@ -678,7 +677,7 @@ void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
         if (row_number < 1 || row_number > 5 || seat_number < 1 || seat_number > 10)
         {
             clearScreen();
-            printf("Invalid row or seat number. Please try again.\n");
+            printf("Invalid row or seat number. Please try again. (You will be redirected automatically)\n");
             sleep(2);
             i--;
             continue;
@@ -688,7 +687,7 @@ void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
         if (s.seats[row_number - 1][seat_number - 1] == 1)
         {
             clearScreen();
-            printf("Sorry, seat %d in row %d is already booked. Please choose a different seat.\n", seat_number, row_number);
+            printf("Sorry, seat %d in row %d is already booked. Please choose a different seat. (You will be redirected automatically)\n", seat_number, row_number);
             sleep(2);
             i--;
             continue;
@@ -697,7 +696,7 @@ void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
         {
             s.seats[row_number - 1][seat_number - 1] = 1;
             clearScreen();
-            printf("Seat %d in row %d has been successfully reserved!\n", seat_number, row_number);
+            printf("Seat %d in row %d has been successfully reserved! (You will be redirected automatically)\n", seat_number, row_number);
             update_seat_data(Ticket_id, &s);
             sleep(2);
         }
@@ -724,6 +723,7 @@ int check_user(char mobile[11])
     FILE *file = fopen("signup_info.txt", "r");
     if (file == NULL)
     {
+        clearScreen();
         printf("Error opening file.\n");
         sleep(5);
         exit(0);
@@ -758,6 +758,7 @@ int check_login(char mobile[11], char password[100])
 
     if (file == NULL)
     {
+        clearScreen();
         printf("Error opening file.\n");
         sleep(5);
         exit(0);
@@ -820,7 +821,7 @@ int Login()
     if (check_login(mobile_number, password))
     {
         clearScreen();
-        printf("You logged in successfully!\n");
+        printf("You logged in successfully! (You will be redirected automatically)\n");
         sleep(2);
         strcpy(new_user.mobile, mobile_number);
         strcpy(new_user.password, password);
@@ -829,7 +830,7 @@ int Login()
     else
     {
         clearScreen();
-        printf("User is not valid, please try again.");
+        printf("User is not valid, please try again. (You will be redirected automatically)");
         sleep(3);
         main_login_page();
     }
@@ -846,8 +847,10 @@ void Signup()
     FILE *file = fopen("signup_info.txt", "a");
     if (file == NULL)
     {
+        clearScreen();
         printf("Error opening file!\n");
-        return exit(0);
+        sleep(3);
+        exit(0);
     }
 
     printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n");
@@ -863,8 +866,8 @@ void Signup()
     if (strlen(mobile) != 10)
     {
         clearScreen();
-        printf("Mobile Number is invalid\n");
-        sleep(2);
+        printf("Mobile Number is invalid (You will be redirected automatically)\n");
+        sleep(3);
         return main_login_page();
     }
 
@@ -873,8 +876,8 @@ void Signup()
         if (!isdigit(mobile[i]))
         {
             clearScreen();
-            printf("Mobile Number is invalid\n");
-            sleep(5);
+            printf("Mobile Number is invalid (You will be redirected automatically)\n");
+            sleep(3);
             return main_login_page();
         }
     }
@@ -887,8 +890,8 @@ void Signup()
     if (check_user(mobile))
     {
         clearScreen();
-        printf("User already exists.\n");
-        sleep(5);
+        printf("User already exists. (You will be redirected automatically)\n");
+        sleep(3);
         return main_login_page();
     }
 
@@ -924,7 +927,8 @@ void main_login_page()
         printf("You successfully exited the program.\n");
         exit(0);
     default:
-        printf("Enter a valid operation.\n");
+        clearScreen();
+        printf("Enter a valid operation. (You will be redirected automatically)\n");
         sleep(2);
         main_login_page();
         break;
@@ -949,8 +953,21 @@ void Book_Ticket()
     int Ticket_id;
     printf("\n\tEnter 'ID' of Movie to book a ticket: ");
     scanf("%d", &Ticket_id);
-
-    Reserve_seat(Ticket_id, Movie_File_n, &movie);
+    char *current_time = getCurrentTime();
+    if (strcmp(current_time, movie[Ticket_id - 1].showtime) >= 0)
+    {
+        reset_seat(Ticket_id);
+        clearScreen();
+        printf("\nUnfortunately, the scheduled time for your selected movie has already passed. Tickets can only be booked after 12:00 PM. (You will be redirected automatically)\n---------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        free(current_time);
+        sleep(5);
+        main_PVR();
+    }
+    else
+    {
+        free(current_time);
+        Reserve_seat(Ticket_id, Movie_File_n, &movie);
+    }
 }
 
 // For main PVR page
@@ -977,7 +994,8 @@ void main_PVR()
         printf("You successfully exited the program.\n");
         exit(0);
     default:
-        printf("Enter a valid operation.\n");
+        clearScreen();
+        printf("Enter a valid operation. (You will be redirected automatically)\n");
         sleep(2);
         main_PVR();
         break;
