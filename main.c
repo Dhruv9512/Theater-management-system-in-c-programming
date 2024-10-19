@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <unistd.h>
+
 
 // ------------------------- Structure To store movies Data----------------------
 
@@ -153,7 +153,7 @@ void User_history()
         sleep(5);
         main_PVR();
     }
-    
+
     char line[350];
     while (fgets(line, sizeof(line), file))
     {
