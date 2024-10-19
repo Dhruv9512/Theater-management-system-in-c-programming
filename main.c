@@ -29,6 +29,7 @@ typedef struct
 } seat;
 
 // ------------------------Function Declarations----------------------
+void User_history();
 void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id);
 void Invoice(char title[40], char price[5], int quantity, char *date, char *time, int Ticket_id);
 void store_seat_data(int Ticket_id, seat *s);
@@ -58,28 +59,134 @@ int main()
     return 0;
 }
 
-// ---------------------------------- Function Definition----------------------------
+// --------------------------------------- Function Definition------------------------------------
 
-// ---------------------------------- Support Function-----------------------------------
+// ---------------------- Support Function---------------------
+// Function to display the history of user
+void User_history()
+{
+    clearScreen();
+    printf("\t\t\t\t\t\t\t    Your Ticket History\n");
+    printf("\t\t\t\t\t\t\t---------------------------\n\n");
+    printf("\n\n\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    char filename[30];
+    sprintf(filename, "%s.txt", new_user.mobile);
+
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        clearScreen();
+        printf("Error opening file or no history found!\n");
+        sleep(3);
+        return;
+    }
+
+    char line[350];
+    while (fgets(line, sizeof(line), file))
+    {
+        int movie_ID, movie_quantity;
+        char temp_id[5] = {0};
+        char temp_quantity[5] = {0};
+        char movie_title[40] = {0};
+        char movie_price[5] = {0};
+        char movie_date[11] = {0};
+        char movie_time[9] = {0};
+        int time = 0, ID = 0, title = 0, price = 0, date = 0, temp_time = 0, quantity = 0;
+
+        for (int i = 0; line[i] != '\0'; i++)
+        {
+            if (line[i] == ',')
+            {
+                time++;
+                continue;
+            }
+
+            // Movie ID
+            if (time == 0)
+            {
+                temp_id[ID++] = line[i];
+            }
+            // Movie title
+            else if (time == 1)
+            {
+                movie_title[title++] = line[i];
+            }
+            // Ticket quantity
+            else if (time == 2)
+            {
+                temp_quantity[quantity++] = line[i];
+            }
+            // Price
+            else if (time == 3)
+            {
+                movie_price[price++] = line[i];
+            }
+            // Date
+            else if (time == 4)
+            {
+                movie_date[date++] = line[i];
+            }
+            // Time
+            else
+            {
+                movie_time[temp_time++] = line[i];
+            }
+        }
+
+        // add '\0' in string
+        temp_id[ID] = '\0';
+        movie_ID = atoi(temp_id);
+        movie_title[title] = '\0';
+        temp_quantity[quantity] = '\0';
+        movie_quantity = atoi(temp_quantity);
+        movie_price[price] = '\0';
+        movie_date[date] = '\0';
+        movie_time[temp_time] = '\0';
+
+        // Invoice Print
+        Invoice(movie_title, movie_price, movie_quantity, &movie_date, &movie_time, movie_ID);
+
+        printf("\n\n\n\n\n\n\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    }
+    fclose(file);
+
+    char ex;
+    while (1)
+    {
+        printf("\n\nIf you want to exit press (y): ");
+        scanf(" %c", &ex);
+
+        if (ex == 'y' || ex == 'Y')
+        {
+            main_PVR();
+        }
+        else
+        {
+            printf("Please enter valid operation");
+        }
+    }
+}
 
 // Function to store the invoice in user file
-void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id) {
-    char filename[30]; 
+void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id)
+{
+    char filename[30];
     sprintf(filename, "%s.txt", new_user.mobile);
-    
- 
+
     FILE *file = fopen(filename, "a");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         clearScreen();
         printf("Error opening file!\n");
         sleep(5);
         exit(0);
     }
 
-    fprintf(file,"%d,%s,%d,%s,%s,%s\n",Ticket_id,m[Ticket_id-1].title,quantity,m[Ticket_id-1].price,date,time);
- 
+    fprintf(file, "%d,%s,%d,%s,%s,%s\n", Ticket_id, m[Ticket_id - 1].title, quantity, m[Ticket_id - 1].price, date, time);
+
     fclose(file);
 }
+
 // current time function
 char *getCurrentTime()
 {
@@ -92,6 +199,7 @@ char *getCurrentTime()
     }
     return buffer;
 }
+
 // Current date function
 char *getCurrentDate()
 {
@@ -104,10 +212,10 @@ char *getCurrentDate()
     }
     return buffer;
 }
+
 // Invoice Function
 void Invoice(char title[40], char price[5], int quantity, char *date, char *time, int Ticket_id)
 {
-    clearScreen();
     printf("\t\t\t\t    PVR Cinemas Invoice\n");
     printf("\t\t\t\t---------------------------\n\n");
     printf("Date: %s\n", date);
@@ -115,7 +223,7 @@ void Invoice(char title[40], char price[5], int quantity, char *date, char *time
     printf("---------------------------------------------------------------------------------------------------\n");
     printf("Movie Id\t\tTitle\t\t\tNumber of Tickets\t\tPrice per Ticket\n");
     printf("---------------------------------------------------------------------------------------------------\n\n");
-    printf("%d %30s\t\t%d\t\t\t\t%4s\n", Ticket_id,title, quantity, price);
+    printf("%d %30s\t\t%d\t\t\t\t%4s\n", Ticket_id, title, quantity, price);
 
     double price_per_ticket = atof(price);
     double total = price_per_ticket * quantity;
@@ -139,6 +247,7 @@ void Invoice(char title[40], char price[5], int quantity, char *date, char *time
     printf("Grand Total\t\t\t\t\t\t\t\t\t%.2f\n", grand_total);
     printf("---------------------------------------------------------------------------------------------------\n");
 }
+
 // Payment Function
 void payment(int quantity, int Ticket_id)
 {
@@ -158,7 +267,8 @@ void payment(int quantity, int Ticket_id)
     clearBuffer();
     printf("Please enter your UPI PIN: ");
     scanf("%s", pass);
-    Invoice(m[Ticket_id-1].title, m[Ticket_id-1].price ,quantity, getCurrentDate(), getCurrentTime(), Ticket_id);
+    clearScreen();
+    Invoice(m[Ticket_id - 1].title, m[Ticket_id - 1].price, quantity, getCurrentDate(), getCurrentTime(), Ticket_id);
     char save;
     printf("Do you want to save this Invoice (y/n): ");
     scanf(" %c", &save);
@@ -182,6 +292,7 @@ void payment(int quantity, int Ticket_id)
         main_PVR();
     }
 }
+
 // Function to store seat data
 void store_seat_data(int Ticket_id, seat *s)
 {
@@ -789,7 +900,7 @@ void main_PVR()
         Book_Ticket();
         break;
     case 2:
-
+        User_history();
         break;
     case 3:
         clearScreen();
