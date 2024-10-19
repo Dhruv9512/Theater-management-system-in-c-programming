@@ -61,8 +61,8 @@ int main()
 }
 
 // --------------------------------------- Function Definition------------------------------------
-
 // ---------------------- Support Function---------------------
+
 // Function to reset seats
 void reset_seat(Ticket_id)
 {
@@ -145,6 +145,15 @@ void User_history()
         exit(0);
     }
 
+    int n = countLinesInFile(filename);
+    if (n <= 0)
+    {
+        clearScreen();
+        printf("There are currently no records of your ticket bookings. You will be redirected shortly.");
+        sleep(5);
+        main_PVR();
+    }
+    
     char line[350];
     while (fgets(line, sizeof(line), file))
     {
