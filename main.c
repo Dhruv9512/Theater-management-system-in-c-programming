@@ -30,6 +30,7 @@ typedef struct
 
 // ------------------------Function Declarations----------------------
 void User_history();
+void reset_seat(Ticket_id);
 void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id);
 void Invoice(char title[40], char price[5], int quantity, char *date, char *time, int Ticket_id);
 void store_seat_data(int Ticket_id, seat *s);
@@ -39,7 +40,7 @@ void store_movies_data(Movie *movie);
 void Show_movies_data(int Movie_File_n, Movie *movie);
 void update_seat_data(int Ticket_id, seat *s);
 int countLinesInFile(const char *filename);
-void Reserve_seat(int Ticket_id, int Movie_File_n);
+void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie);
 void payment(int quantity, int Ticket_id);
 char *getCurrentTime();
 char *getCurrentDate();
@@ -62,6 +63,67 @@ int main()
 // --------------------------------------- Function Definition------------------------------------
 
 // ---------------------- Support Function---------------------
+// Function to reset seats
+void reset_seat(Ticket_id)
+{
+    FILE *file = fopen("seat.txt", "r+");
+    if (file == NULL)
+    {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[300];
+    int count = 0, position = -1;
+    char ID[10];
+
+    while (fgets(line, sizeof(line), file))
+    {
+        if (count == 6)
+        {
+            count = 0;
+        }
+
+        if (count == 0)
+        {
+
+            sscanf(line, "%s", ID);
+            if (atoi(ID) == Ticket_id)
+            {
+                position = ftell(file);
+                break;
+            }
+        }
+        count++;
+    }
+
+    if (position == -1)
+    {
+        printf("Ticket ID not found.\n");
+        fclose(file);
+        return;
+    }
+
+    if (fseek(file, position, SEEK_SET) != 0)
+    {
+        perror("Error seeking in file");
+        fclose(file);
+        return;
+    }
+
+    for (int j = 0; j < 5; j++)
+    {
+        for (int k = 0; k < 10; k++)
+        {
+            fprintf(file, "%d", 0);
+            if (k < 9)
+                fprintf(file, ",");
+        }
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+}
 // Function to display the history of user
 void User_history()
 {
@@ -192,10 +254,10 @@ char *getCurrentTime()
 {
     time_t t = time(NULL);
     struct tm *tm_info = localtime(&t);
-    char *buffer = (char *)malloc(9 * sizeof(char));
+    char *buffer = (char *)malloc(6 * sizeof(char));
     if (buffer != NULL)
     {
-        strftime(buffer, 9, "%I:%M %p", tm_info);
+        strftime(buffer, 6, "%H:%M", tm_info);
     }
     return buffer;
 }
@@ -558,7 +620,7 @@ void Show_movies_data(int Movie_File_n, Movie *movie)
 }
 
 // Reserve Seat
-void Reserve_seat(int Ticket_id, int Movie_File_n)
+void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
 {
     if (Ticket_id > Movie_File_n || Ticket_id <= 0)
     {
@@ -568,6 +630,14 @@ void Reserve_seat(int Ticket_id, int Movie_File_n)
         return;
     }
 
+    char *current_time = getCurrentTime();
+    printf("Current time: %s\n", current_time);
+    printf("Movie time: %s\n", movie[Ticket_id - 1].showtime);
+
+    if (strcmp(current_time, movie[Ticket_id - 1].showtime) >= 0)
+    {
+        reset_seat(Ticket_id);
+    }
     clearScreen();
     printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n\n");
 
@@ -880,7 +950,7 @@ void Book_Ticket()
     printf("\n\tEnter 'ID' of Movie to book a ticket: ");
     scanf("%d", &Ticket_id);
 
-    Reserve_seat(Ticket_id, Movie_File_n);
+    Reserve_seat(Ticket_id, Movie_File_n, &movie);
 }
 
 // For main PVR page
