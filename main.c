@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 
-
 // ------------------------- Structure To store movies Data----------------------
 
 // structure for user details
@@ -130,9 +129,10 @@ void reset_seat(Ticket_id)
 void User_history()
 {
     clearScreen();
+    printf("\t\t\t\t\t\t\t===========================\n");
     printf("\t\t\t\t\t\t\t    Your Ticket History\n");
-    printf("\t\t\t\t\t\t\t---------------------------\n\n");
-    printf("\n\n\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("\t\t\t\t\t\t\t===========================\n");
+    printf("\n\n\nYour 1 Ticket\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     char filename[30];
     sprintf(filename, "%s.txt", new_user.mobile);
 
@@ -154,6 +154,7 @@ void User_history()
         main_PVR();
     }
 
+    int l = 2;
     char line[350];
     while (fgets(line, sizeof(line), file))
     {
@@ -219,7 +220,15 @@ void User_history()
         // Invoice Print
         Invoice(movie_title, movie_price, movie_quantity, &movie_date, &movie_time, movie_ID);
 
-        printf("\n\n\n\n\n\n\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+        if (l <= countLinesInFile(filename))
+        {
+            printf("\n\n\n\n\n\n\nYour %d Ticket\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n", l);
+        }
+        else
+        {
+            printf("\n\n\n\n\n\n\nEnd Of Ticket History\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n", l);
+        }
+        l++;
     }
     fclose(file);
 
@@ -289,8 +298,9 @@ char *getCurrentDate()
 // Invoice Function
 void Invoice(char title[40], char price[5], int quantity, char *date, char *time, int Ticket_id)
 {
-    printf("\t\t\t\t    PVR Cinemas Invoice\n");
-    printf("\t\t\t\t---------------------------\n\n");
+    printf("===========================\n");
+    printf("   PVR Cinemas Invoice\n");
+    printf("===========================\n\n");
     printf("Date: %s\n", date);
     printf("Time: %s\n", time);
     printf("---------------------------------------------------------------------------------------------------\n");
@@ -329,9 +339,9 @@ void payment(int quantity, int Ticket_id)
     store_movies_data(&m);
 
     // Print the total bill in an attractive format
-    printf("-------------------------------------\n");
+    printf("=====================================\n");
     printf("            PAYMENT SCREEN           \n");
-    printf("-------------------------------------\n\n");
+    printf("=====================================\n\n");
     printf("Your Total Bill: %d\n", quantity * atoi(m[Ticket_id - 1].price));
     char upi[50];
     char pass[10];
@@ -647,7 +657,9 @@ void Reserve_seat(int Ticket_id, int Movie_File_n, Movie *movie)
         exit(0);
     }
     clearScreen();
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n\n");
+    printf("===========================\n");
+    printf("  Welcome to PVR Cinemas\n");
+    printf("===========================\n");
 
     seat s;
     store_seat_data(Ticket_id, &s);
@@ -815,7 +827,9 @@ int check_login(char mobile[11], char password[100])
 int Login()
 {
     clearScreen();
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n");
+    printf("===========================\n");
+    printf("  Welcome to PVR Cinemas\n");
+    printf("===========================\n");
     char mobile_number[11];
     char password[100];
 
@@ -862,7 +876,9 @@ void Signup()
         exit(0);
     }
 
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n");
+    printf("===========================\n");
+    printf("  Welcome to PVR Cinemas\n");
+    printf("===========================\n");
 
     printf("Enter your name: ");
     fgets(name, sizeof(name), stdin);
@@ -917,7 +933,9 @@ void main_login_page()
 {
     int login_choice;
     clearScreen();
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n");
+    printf("===========================\n");
+    printf("  Welcome to PVR Cinemas\n");
+    printf("===========================\n");
     printf("1. Login\n2. Signup\n3. Exit\n\n");
     printf("Enter your Choice: ");
     scanf("%d", &login_choice);
@@ -950,7 +968,9 @@ void main_login_page()
 void Book_Ticket()
 {
     clearScreen();
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n\n");
+    printf("===========================\n");
+    printf("  Welcome to PVR Cinemas\n");
+    printf("===========================\n");
 
     const char *filename = "movies.txt";
     int Movie_File_n = countLinesInFile(filename);
@@ -984,7 +1004,9 @@ void main_PVR()
 {
     clearScreen();
     int main_PVR_choice;
-    printf("\t    Welcome to PVR Cinemas\n\t------------------------------\n");
+    printf("===========================\n");
+    printf("  Welcome to PVR Cinemas\n");
+    printf("===========================\n");
     printf("1. Book Ticket\n2. Show My Bookings\n3. Exit\n\n");
     printf("Enter your Choice: ");
     scanf("%d", &main_PVR_choice);
