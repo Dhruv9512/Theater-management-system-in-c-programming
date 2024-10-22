@@ -65,7 +65,7 @@ int main()
 // Function to reset seats
 void reset_seat(Ticket_id)
 {
-    FILE *file = fopen("seat.txt", "r+");
+    FILE *file = fopen("./seat.txt", "r+");
     if (file == NULL)
     {
         perror("Error opening file");
@@ -134,7 +134,7 @@ void User_history()
     printf("\t\t\t\t\t\t\t===========================\n");
     printf("\n\n\nYour 1 Ticket\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
     char filename[30];
-    sprintf(filename, "%s.txt", new_user.mobile);
+    sprintf(filename, "./%s.txt", new_user.mobile);
 
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -253,7 +253,7 @@ void User_history()
 void store_invoice(Movie *m, int quantity, char *date, char *time, int Ticket_id)
 {
     char filename[30];
-    sprintf(filename, "%s.txt", new_user.mobile);
+    sprintf(filename, "./%s.txt", new_user.mobile);
 
     FILE *file = fopen(filename, "a");
     if (file == NULL)
@@ -335,7 +335,7 @@ void Invoice(char title[40], char price[5], int quantity, char *date, char *time
 void payment(int quantity, int Ticket_id)
 {
     clearScreen();
-    Movie m[countLinesInFile("movies.txt")];
+    Movie m[countLinesInFile("./movies.txt")];
     store_movies_data(&m);
 
     // Print the total bill in an attractive format
@@ -379,7 +379,7 @@ void payment(int quantity, int Ticket_id)
 // Function to store seat data
 void store_seat_data(int Ticket_id, seat *s)
 {
-    FILE *file = fopen("seat.txt", "r");
+    FILE *file = fopen("./seat.txt", "r");
     if (file == NULL)
     {
         clearScreen();
@@ -494,7 +494,7 @@ int countLinesInFile(const char *filename)
 // Store Movies Data
 void store_movies_data(Movie *movie)
 {
-    FILE *file = fopen("movies.txt", "r");
+    FILE *file = fopen("./movies.txt", "r");
     if (file == NULL)
     {
         clearScreen();
@@ -507,7 +507,7 @@ void store_movies_data(Movie *movie)
     int count = 0;
 
     char line[300];
-    while (fgets(line, sizeof(line), file) && count < countLinesInFile("movies.txt"))
+    while (fgets(line, sizeof(line), file) && count < countLinesInFile("./movies.txt"))
     {
         int time = 0, name = 0, movie_time = 0, g = 0, rate = 0, price = 0;
 
@@ -560,7 +560,7 @@ void store_movies_data(Movie *movie)
 // Function to update the seat Data
 void update_seat_data(int Ticket_id, seat *s)
 {
-    FILE *file = fopen("seat.txt", "r+");
+    FILE *file = fopen("./seat.txt", "r+");
     if (file == NULL)
     {
         perror("Error opening file");
@@ -741,7 +741,7 @@ void clearScreen()
 // Check if user exists
 int check_user(char mobile[11])
 {
-    FILE *file = fopen("signup_info.txt", "r");
+    FILE *file = fopen("./signup_info.txt", "r");
     if (file == NULL)
     {
         clearScreen();
@@ -775,7 +775,7 @@ int check_user(char mobile[11])
 // For Login Validation
 int check_login(char mobile[11], char password[100])
 {
-    FILE *file = fopen("signup_info.txt", "r");
+    FILE *file = fopen("./signup_info.txt", "r");
 
     if (file == NULL)
     {
@@ -867,7 +867,7 @@ void Signup()
     char mobile[11];
     char password[100];
 
-    FILE *file = fopen("signup_info.txt", "a");
+    FILE *file = fopen("./signup_info.txt", "a");
     if (file == NULL)
     {
         clearScreen();
@@ -972,7 +972,7 @@ void Book_Ticket()
     printf("  Welcome to PVR Cinemas\n");
     printf("===========================\n");
 
-    const char *filename = "movies.txt";
+    const char *filename = "./movies.txt";
     int Movie_File_n = countLinesInFile(filename);
     Movie movie[Movie_File_n];
     store_movies_data(&movie);
